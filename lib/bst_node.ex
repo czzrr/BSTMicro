@@ -10,7 +10,7 @@ defmodule BSTNode do
     
   * right: The right child of the node. Default value is nil.
   """
-  
+  @derive [Poison.Encoder]
   defstruct left: nil, value: 0, right: nil
   
   @spec insert(BSTNode, integer) :: BSTNode
@@ -56,6 +56,27 @@ defmodule BSTNode do
           %{node | right: insert(right, n)}
       
       _ -> node
+    end
+  end
+
+  @spec mapToBSTNode(%{}) :: BSTNode
+  @doc """
+  Transforms a binary search tree represented as a map with string keys into a BSTNode struct.
+
+  ## Examples
+
+  iex> mapToBSTNode(%{})
+  nil
+
+  iex> mapToBSTNode(%{"left" => %{"left" => nil, "value" => 3, "right" => nil} "value" => 5, "right" => nil})
+  %BSTNode{left: %BSTNode{left: nil, value: 3, right: nil}, value: 5, right= nil}
+  """
+  def mapToBSTNode(map) do
+    case map do
+      nil -> nil
+      %{"left" => left, "value" => value, "right" => right} when map_size(map) == 3 ->
+        %BSTNode{left: mapToBSTNode(left), value: value, right: mapToBSTNode(right)}
+      _ -> raise "Error when transforming map to BSTNode"
     end
   end
 end
