@@ -17,7 +17,7 @@ defmodule Server do
   """
   def handle_insert(request_map) do
     case request_map do # Match on the parsed JSON
-      %{"value" => value, "data" => node_map} -> # We expect to receive this
+      %{"value" => value, "data" => node_map} when map_size(request_map) == 2 -> # We expect to receive this
         try do # BSTNode.from_map raises an exception if map cannot be transformed to BSTNode struct
           node = BSTNode.from_map(node_map)
           updated_node = BSTNode.insert(node, value)
@@ -26,20 +26,9 @@ defmodule Server do
           {:ok, body}
         rescue
           e in RuntimeError ->
-          {:err, make_err_resp(e.message)}
+          {:err, Utils.make_err_resp(e.message)}
         end
-      _ -> {:err, make_err_resp("JSON parsed successfully but was in the wrong format")}
+      _ -> {:err, Utils.make_err_resp("JSON parsed successfully but was in the wrong format")}
     end
-  end
-
-  # Helper function for creating error responses
-  defp make_err_resp(err_msg) do
-    response_map = %{"status" => 402, "data" => err_msg} # Pack response
-    encoded_err_resp = Poison.encode!(response_map) # Encode response
-    encoded_err_resp
-  end
-
-   
-
-  
+  end  
 end

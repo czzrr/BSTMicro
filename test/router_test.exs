@@ -5,9 +5,6 @@ defmodule RouterTest do
   Various requests are sent and the response is compared to what we expect.
   """
   use ExUnit.Case
-  use Plug.Test
-
-  @opts Router.init([]) # Use attribute as constant for router initialization
 
   test "Request insertion of 1 into empty tree" do
     node = nil
@@ -46,20 +43,74 @@ defmodule RouterTest do
     request_map = %{"value" => value, "data" => node}
     body = Poison.encode!(request_map)
 
-    # Specify request type (POST /insert) and request body
-    conn = conn(:post, "insert", body)
-    # Set destination and content type
-    conn = %{conn | host: "localhost", port: 8080, req_headers: [{"content-type", "application/json"}]}
-    # Simulate request
-    conn = Router.call(conn, @opts)
-
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    
     # Update node locally for comparing what is returned from the API
     updated_node = BSTNode.insert(node, value)
+    # Locally updated node should match remotely updated node
     expected_resp_body = Poison.encode!(%{"status" => 200, "data" => updated_node})
     
-    assert conn.state == :sent
-    assert conn.status == 200
-    assert expected_resp_body == conn.resp_body # Locally updated node should match remotely updated node
+    assert response.status_code == 200
+    assert response.body == expected_resp_body
   end
+
+  test "Send a GET /insert request" do
+    {:ok, response} = HTTPoison.get("localhost:8080/insert")
+    expected_resp_body = Utils.make_err_resp("The server could not handle your request")
+    
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
+  test "Send a POST /hello request with random body" do
+    body = "random body in here"
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("Error when parsing JSON in request body")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
+  test "Send a POST /insert request with wrong JSON body" do
+    request_map = %{"foo" => 1, "bar" => 2}
+    body = Poison.encode!(request_map)
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+  
+  test "Send a POST /insert request with non-JSON body" do
+    body = "random body content"
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("Error when parsing JSON in request body")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
+  test "Send a POST /insert request with empty JSON body" do
+    body = ""
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
+  test "Send a POST /insert request with wrong content-type" do
+    node = %BSTNode{value: 3}
+    value = 5
+    request_map = %{"value" => value, "data" => node}
+    body = Poison.encode!(request_map)
+
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "text/plain"}])
+    expected_resp_body = Utils.make_err_resp("Error when receiving request")
+    
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
   
 end
