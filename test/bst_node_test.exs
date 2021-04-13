@@ -24,15 +24,32 @@ defmodule BSTNodeTest do
     assert BSTNode.insert(node, 5) == %BSTNode{value: 3, right: %BSTNode{value: 5}}
   end
 
-  test "Insert sequence of elements" do
-    node1 = %BSTNode{value: 19}
-    node2 = BSTNode.insert(node1, 7)
-    node3 = BSTNode.insert(node2, 11)
-    node4 = BSTNode.insert(node3, 5)
-
-    assert node4 == %BSTNode{
+  test "Insert sequence of positive elements" do
+    node = BSTNode.fromList([19, 7, 11, 5])
+    assert node == %BSTNode{
              left: %BSTNode{left: %BSTNode{value: 5}, value: 7, right: %BSTNode{value: 11}},
              value: 19
            }
+  end
+
+  test "Insert sequence of negative elements" do
+    node = BSTNode.fromList([-101, -47, -61, -11])
+    assert node == %BSTNode{
+      left: nil,
+      value: -101,
+      right: %BSTNode{
+        left: %BSTNode{value: -61},
+        value: -47,
+        right: %BSTNode{value: -11}},
+    }
+  end
+
+  test "Insert sequence of mixed elements" do
+    node = BSTNode.fromList([14, -51, -13, 79])
+    assert node == %BSTNode{
+      left: %BSTNode{value: -51, right: %BSTNode{value: -13}},
+      value: 14,
+      right: %BSTNode{value: 79}
+    }
   end
 end

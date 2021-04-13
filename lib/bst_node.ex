@@ -79,4 +79,10 @@ defmodule BSTNode do
       _ -> raise "Error when transforming map to BSTNode"
     end
   end
+
+  def fromList(xs) do
+    Enum.reduce(xs, nil,
+      (fn n, node -> BSTNode.insert(node, n) end))
+  end
+  
 end
