@@ -22,13 +22,13 @@ defmodule RouterTest do
   end
 
   test "Request insertion of 17 into tree with elements 7, 11, 19" do
-    node = BSTNode.fromList([7, 11, 19])
+    node = BSTNode.from_list([7, 11, 19])
     value = 17
     test_correct_request(node, value)
   end
 
   test "Request insertion of 42 into tree with elements -17, -62, 2021, 199, -5, 0, 7" do
-    node = BSTNode.fromList([-17, -62, 2021, 199, -5, 0, 7])
+    node = BSTNode.from_list([-17, -62, 2021, 199, -5, 0, 7])
     value = 42
     test_correct_request(node, value)
   end
@@ -37,7 +37,7 @@ defmodule RouterTest do
     value = Enum.random(-10000..10000)
     num_elems = Enum.random(10..100)
     elems = for _ <- 1..num_elems, do: Enum.random(-10000..10000)
-    node = BSTNode.fromList(elems)
+    node = BSTNode.from_list(elems)
     test_correct_request(node, value)
   end
 

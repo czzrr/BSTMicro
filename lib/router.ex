@@ -32,14 +32,4 @@ defmodule Router do
   match _ do
     send_resp(conn, 404, "The server could not handle your request")
   end
-
-  # Send back a response with status code 402 and an error message
-  #defp send_err_resp(conn, err_msg) do
-  #  response_map = %{"status" => 402, "data" => err_msg}
-  #  body = Poison.encode!(response_map)
-  #  conn
-  #  |> put_resp_content_type("application/json")
-  #  |> send_resp(402, body)
-  #end
-  
 end

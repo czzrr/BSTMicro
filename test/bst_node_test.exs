@@ -25,7 +25,7 @@ defmodule BSTNodeTest do
   end
 
   test "Insert sequence of positive elements" do
-    node = BSTNode.fromList([19, 7, 11, 5])
+    node = BSTNode.from_list([19, 7, 11, 5])
     assert node == %BSTNode{
              left: %BSTNode{left: %BSTNode{value: 5}, value: 7, right: %BSTNode{value: 11}},
              value: 19
@@ -33,7 +33,7 @@ defmodule BSTNodeTest do
   end
 
   test "Insert sequence of negative elements" do
-    node = BSTNode.fromList([-101, -47, -61, -11])
+    node = BSTNode.from_list([-101, -47, -61, -11])
     assert node == %BSTNode{
       left: nil,
       value: -101,
@@ -45,7 +45,7 @@ defmodule BSTNodeTest do
   end
 
   test "Insert sequence of mixed elements" do
-    node = BSTNode.fromList([14, -51, -13, 79])
+    node = BSTNode.from_list([14, -51, -13, 79])
     assert node == %BSTNode{
       left: %BSTNode{value: -51, right: %BSTNode{value: -13}},
       value: 14,
