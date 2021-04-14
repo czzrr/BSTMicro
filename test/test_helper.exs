@@ -1,2 +1,1 @@
-Server.start()
 ExUnit.start()

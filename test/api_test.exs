@@ -1,11 +1,16 @@
-defmodule RouterTest do
+defmodule APITest do
   @moduledoc """
-  Test module for Router.
-  In this module, the API is tested by using a test connection from Plug.Test.
-  Various requests are sent and the response is compared to what we expect.
+  In this module, the API is tested by sending HTTP requests to the server.
+  The response from the server is then compared to the response we expect.
   """
   use ExUnit.Case
 
+  # Start server once before executing all tests
+  setup_all _context do
+    Server.start()
+    []
+  end
+  
   test "Request insertion of 1 into empty tree" do
     node = nil
     value = 1
