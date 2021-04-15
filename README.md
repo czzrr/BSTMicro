@@ -1,17 +1,17 @@
 # BSTMicro
 SmartConnect coding challenge
 
-The app was tested and built with Elixir ... and OTP ...
+The app was tested and built with Elixir 1.9.1 and OTP 22.0.
 
-### How to build and run
+### How to build
 
-Clone the project:
+The first step is cloning the project:
 
 ```
 git clone https://github.com/czzrr/BSTMicro
 ```
 
-Get project dependencies:
+Navigate to the project directory with `cd BSTMicro/` and get the project dependencies:
 
 ```
 mix deps.get
@@ -31,23 +31,38 @@ mix release
 
 You can now start the app by running `_build/dev/rel/bst_micro/bin/bst_micro start`.
 
-If you want to run the app in a container with Docker, you can build an image from the Dockerfile by running
+Requests can now be sent to localhost:8080.
+An example is:
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"value": 7, "data":{"value":4,"right":null,"left":null}}' localhost:8080/insert
+```
+
+This inserts 7 into the binary search tree containing a single node of value 4.
+
+The response is `{"status":200,"data":{"value":4,"right":{"value":7,"right":null,"left":null},"left":null}}`.
+
+### Running the app in a Docker container
+
+Build the image from the provided Dockerfile:
 
 ```
 docker build --tag webserver:focal .
 ```
 
-The container can be run by running
+Run the container:
 
 ```
-docker run --name webserver -d -p 8080:8080 webserver:latest ./app/bin/bst_micro start
+docker run --name webserver -d -p 8080:8080 webserver:focal
 ```
 
-HTTP requests can now be sent to localhost:8080.
+HTTP requests can now be sent in the same way as above.
 
-### Running the container in Kubernetes
+### Deploying the app with Kubernetes
 
-Create a local kind cluster:
+The following instructions are for deploying the app in a local kind cluster with ingress.
+
+Create the cluster with the provided `config.yaml` file:
 
 ```
 kind create cluster --config=config.yaml
@@ -59,37 +74,23 @@ Load the docker image we built earlier into the cluster:
 kind load docker-image webserver:focal
 ```
 
-You can check to see if it's ready:
+You can check if the cluster is ready by running `kubectl get nodes`.
+
+Make sure you have an ingress controller. Ingress NGINX is setup with
 
 ```
-kubectl get nodes
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 ```
 
-Start webserver, its service and ingress:
+When the process for setting up Ingress NGINX is done, the webserver and ingress can be started with:
 
 ```
 kubectl apply -f webserver-config.yaml
 ```
 
-The connection to the container running the webserver can be tested by port-forwarding:
+Requests can now be sent the to the webserver by sending them to `localhost/insert`. Example:
 
-```
-kubectl port-forward webserver-deployment-788f56c75-jvzgd 8080:8080
-
-```
-
-Example request:
-
-```
-curl -X POST -H "Content-Type: application/json" -d '{"value": 7, "data":{"value":4,"right":null,"left":null}}' localhost:8080/insert
-```
-
-Returns `{"status":200,"data":{"value":4,"right":{"value":7,"right":null,"left":null},"left":null}}`.
-
-Unfortunately I cannot get the API to work through ingress:
-
-```
 curl -X POST -H "Content-Type: application/json" -d '{"value": 7, "data":{"value":4,"right":null,"left":null}}' localhost/insert
-```
 
-returns `{"status":402,"data":"The server could not handle your request"}`, which seems like Plug is not matching on POST /insert...
+
+The `curl` call above returns `{"status":200,"data":{"value":4,"right":{"value":7,"right":null,"left":null},"left":null}}`.
