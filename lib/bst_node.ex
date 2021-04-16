@@ -19,26 +19,26 @@ defmodule BSTNode do
 
   ## Examples
 
-       iex> BSTNode.insert(nil, 7)
-       %BSTNode{left: nil, right: nil, value: 7}
+      iex> BSTNode.insert(nil, 7)
+      %BSTNode{left: nil, right: nil, value: 7}
 
-       iex> node = %BSTNode{value: 7}
-       %BSTNode{left: nil, right: nil, value: 7}
-       iex> BSTNode.insert(node, 7)
-       %BSTNode{left: nil, right: nil, value: 7}
+      iex> node = %BSTNode{value: 7}
+      %BSTNode{left: nil, right: nil, value: 7}
+      iex> BSTNode.insert(node, 7)
+      %BSTNode{left: nil, right: nil, value: 7}
 
-       iex> node = %BSTNode{left: %BSTNode{value: 5}, value: 7}
-       %BSTNode{left: %BSTNode{left: nil, right: nil, value: 5}, right: nil, value: 7}
-       iex> BSTNode.insert(node, 6)
-       %BSTNode{
-         left: %BSTNode{
-           left: nil,
-           right: %BSTNode{left: nil, right: nil, value: 6},
-           value: 5
-         },
-         right: nil,
-         value: 7
-       }
+      iex> node = %BSTNode{left: %BSTNode{value: 5}, value: 7}
+      %BSTNode{left: %BSTNode{left: nil, right: nil, value: 5}, right: nil, value: 7}
+      iex> BSTNode.insert(node, 6)
+      %BSTNode{
+        left: %BSTNode{
+          left: nil,
+          right: %BSTNode{left: nil, right: nil, value: 6},
+          value: 5
+        },
+        right: nil,
+        value: 7
+      }
   """
   def insert(node, n) do
     case node do
@@ -65,21 +65,25 @@ defmodule BSTNode do
   @spec from_map(bst_map) :: BSTNode
   @doc """
   Transforms a binary search tree represented as a map with string keys into a BSTNode struct.
-
+  Returns {:ok, node} on success and :err on failure.
   ## Examples
 
-       iex> map_to_bst_node(%{})
-       nil
+      iex> from_map(nil)
+      {:ok, nil}
 
-       iex> map_to_bst_node(%{"left" => %{"left" => nil, "value" => 3, "right" => nil}, "value" => 5, "right" => nil})
-       %BSTNode{left: %BSTNode{left: nil, right: nil, value: 3}, right: nil, value: 5}
+      iex> from_map(%{"left" => %{"left" => nil, "value" => 3, "right" => nil}, "value" => 5, "right" => nil})
+      {:ok, %BSTNode{left: %BSTNode{left: nil, right: nil, value: 3}, right: nil, value: 5}}
   """
   def from_map(map) do
     case map do
-      nil -> nil
-      %{"left" => left, "value" => value, "right" => right} when map_size(map) == 3 ->
-        %BSTNode{left: from_map(left), value: value, right: from_map(right)}
-      _ -> raise "Error when transforming map to BSTNode"
+      nil -> {:ok, nil}
+      %{"left" => left, "value" => value, "right" => right} when map_size(map) == 3 and is_integer(value) ->
+        case {from_map(left), from_map(right)} do
+          {{:ok, left}, {:ok, right}} ->
+            {:ok, %BSTNode{left: left, value: value, right: right}}
+          _ -> :err
+        end
+      _ -> :err
     end
   end
 
@@ -89,16 +93,16 @@ defmodule BSTNode do
 
   ## Examples
   
-       iex> from_list([3, 1, 2])
-       %BSTNode{
-         left: %BSTNode{
-           left: nil,
-           right: %BSTNode{left: nil, right: nil, value: 2},
-           value: 1
-         },
-         right: nil,
-         value: 3
-       }
+      iex> from_list([3, 1, 2])
+      %BSTNode{
+        left: %BSTNode{
+          left: nil,
+          right: %BSTNode{left: nil, right: nil, value: 2},
+          value: 1
+        },
+        right: nil,
+        value: 3
+      }
 
   """
   def from_list(list) do

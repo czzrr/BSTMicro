@@ -18,16 +18,15 @@ defmodule Server do
   def handle_insert(request_map) do
     case request_map do # Match on the parsed JSON
       %{"value" => value, "data" => node_map} when map_size(request_map) == 2 -> # We expect to receive this
-        try do # BSTNode.from_map raises an exception if map cannot be transformed to BSTNode struct
           node = BSTNode.from_map(node_map)
-          updated_node = BSTNode.insert(node, value)
-          response_map = %{"status" => 200, "data" => updated_node} # Pack response
-          body = Poison.encode!(response_map) # Encode response
-          {:ok, body}
-        rescue
-          e in RuntimeError ->
-          {:err, Utils.make_err_resp(e.message)}
-        end
+          case node do
+            {:ok, node} ->
+              updated_node = BSTNode.insert(node, value)
+              response_map = %{"status" => 200, "data" => updated_node} # Pack response
+              body = Poison.encode!(response_map) # Encode response
+              {:ok, body}
+            :err -> {:err, Utils.make_err_resp("JSON parsed successfully but was in the wrong format")}
+          end
       _ -> {:err, Utils.make_err_resp("JSON parsed successfully but was in the wrong format")}
     end
   end  

@@ -10,6 +10,8 @@ defmodule APITest do
     Server.start()
     []
   end
+
+  # Tests for correct requests, i.e., body is JSON and is in the format of a BST
   
   test "Request insertion of 1 into empty tree" do
     node = nil
@@ -59,7 +61,11 @@ defmodule APITest do
     assert response.body == expected_resp_body
   end
 
-  test "Send a GET /insert request" do
+
+  
+  # Tests for wrong requests (non-JSON body, JSON body but wrong format, wrong request type, etc.)
+  
+  test "GET /insert" do
     {:ok, response} = HTTPoison.get("localhost:8080/insert")
     expected_resp_body = Utils.make_err_resp("The server could not handle your request")
     
@@ -67,7 +73,7 @@ defmodule APITest do
     assert response.body == expected_resp_body
   end
 
-  test "Send a POST /hello request with random body" do
+  test "POST /hello with random body" do
     body = "random body in here"
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("Error when parsing JSON in request body")
@@ -76,7 +82,7 @@ defmodule APITest do
     assert response.body == expected_resp_body
   end
 
-  test "Send a POST /insert request with wrong JSON body" do
+  test "POST /insert with wrong JSON body" do
     request_map = %{"foo" => 1, "bar" => 2}
     body = Poison.encode!(request_map)
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
@@ -85,8 +91,31 @@ defmodule APITest do
     assert response.status_code == 402
     assert response.body == expected_resp_body
   end
+
+  test "POST /insert where left child is not a BST" do
+    data = %{"left" => "not a bst", "value" => 5, "right" => nil}
+    request_map = %{"value" => 7, "data" => data}
+    body = Poison.encode!(request_map)
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
+  test "POST /insert where value of node is not an integer" do
+    data = %{"left" => nil, "value" => "not an integer", "right" => nil}
+    request_map = %{"value" => 7, "data" => data}
+    body = Poison.encode!(request_map)
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
+
+
+    assert response.body == expected_resp_body
+    assert response.status_code == 402
+  end
   
-  test "Send a POST /insert request with non-JSON body" do
+  test "POST /insert with non-JSON body" do
     body = "random body content"
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("Error when parsing JSON in request body")
@@ -95,7 +124,7 @@ defmodule APITest do
     assert response.body == expected_resp_body
   end
 
-  test "Send a POST /insert request with empty JSON body" do
+  test "POST /insert with empty JSON body" do
     body = ""
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
@@ -104,7 +133,7 @@ defmodule APITest do
     assert response.body == expected_resp_body
   end
 
-  test "Send a POST /insert request with wrong content-type" do
+  test "POST /insert with wrong content-type" do
     node = %BSTNode{value: 3}
     value = 5
     request_map = %{"value" => value, "data" => node}
