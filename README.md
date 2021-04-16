@@ -1,7 +1,8 @@
-# BSTMicro
-SmartConnect coding challenge
+# SmartConnect coding challenge
 
-The app was tested and built with Elixir 1.9.1 and OTP 22.0.
+The app was tested and built on Ubuntu 20.04.2 with Elixir 1.9.1 and OTP 22.0.
+
+I used GitHub Actions for CI, hence the test results can be seen in the GitHub repository under the Actions tab.
 
 ### How to build
 
@@ -94,3 +95,27 @@ curl -X POST -H "Content-Type: application/json" -d '{"value": 7, "data":{"value
 
 
 The `curl` call above returns `{"status":200,"data":{"value":4,"right":{"value":7,"right":null,"left":null},"left":null}}`.
+
+### Sending requests more easily
+
+`lib/Service.ex` can be used for convenience when sending requests:
+
+```
+iex> Service.request_insert(BSTNode.from_list([7, 5]), 19)
+%{
+  "data" => %{
+    "left" => %{"left" => nil, "right" => nil, "value" => 5},
+    "right" => %{"left" => nil, "right" => nil, "value" => 19},
+    "value" => 7
+  },
+  "status" => 200
+}
+
+%BSTNode{
+  left: %BSTNode{left: nil, right: nil, value: 5},
+  right: %BSTNode{left: nil, right: nil, value: 19},
+  value: 7
+}
+```
+
+Make sure to change the url in `lib/Service.ex` in the `HTTPoison.post` call to `localhost/insert` if the webserver runs in Kubernetes.
