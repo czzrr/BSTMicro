@@ -17,7 +17,8 @@ defmodule Server do
   """
   def handle_insert(request_map) do
     case request_map do # Match on the parsed JSON
-      %{"value" => value, "data" => node_map} when map_size(request_map) == 2 -> # We expect to receive this
+      # We expect to receive this
+      %{"value" => value, "data" => node_map} when map_size(request_map) == 2 and is_integer(value) ->
           node = BSTNode.from_map(node_map)
           case node do
             {:ok, node} ->

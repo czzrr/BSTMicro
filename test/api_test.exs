@@ -110,10 +110,21 @@ defmodule APITest do
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
 
-
-    assert response.body == expected_resp_body
     assert response.status_code == 402
+    assert response.body == expected_resp_body
   end
+
+  test "POST /insert where value to insert is not an integer" do
+    data = %{"left" => nil, "value" => 2, "right" => nil}
+    request_map = %{"value" => "seven", "data" => data}
+    body = Poison.encode!(request_map)
+    {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
+    expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
+
+    assert response.status_code == 402
+    assert response.body == expected_resp_body
+  end
+
   
   test "POST /insert with non-JSON body" do
     body = "random body content"
