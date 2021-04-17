@@ -36,7 +36,7 @@ Requests can now be sent to localhost:8080.
 An example is:
 
 ```
-curl -H "Content-Type: application/json" -d '{"value": 7, "data":{"value":4,"right":null,"left":null}}' localhost:8080/insert
+curl -H "Content-Type: application/json" -d '{"value": 7, "tree":{"value":4,"right":null,"left":null}}' localhost:8080/insert
 ```
 
 This inserts 7 into the binary search tree containing a single node of value 4.
@@ -94,7 +94,7 @@ Requests can now be sent the to the webserver by sending them to `localhost/inse
 Example:
 
 ```
-curl -H "Content-Type: application/json" -d '{"value": 7, "data":{"value":4,"right":null,"left":null}}' localhost/insert
+curl -H "Content-Type: application/json" -d '{"value": 7, "tree":{"value":4,"right":null,"left":null}}' localhost/insert
 ```
 
 ### Sending requests more easily
