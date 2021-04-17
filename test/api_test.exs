@@ -47,7 +47,7 @@ defmodule APITest do
 
   # Helper method for testing correct requests.
   defp test_correct_request(node, value) do
-    request_map = %{"value" => value, "data" => node}
+    request_map = %{"value" => value, "tree" => node}
     body = Poison.encode!(request_map)
 
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
@@ -94,7 +94,7 @@ defmodule APITest do
 
   test "POST /insert where left child is not a BST" do
     data = %{"left" => "not a bst", "value" => 5, "right" => nil}
-    request_map = %{"value" => 7, "data" => data}
+    request_map = %{"value" => 7, "tree" => data}
     body = Poison.encode!(request_map)
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
@@ -105,7 +105,7 @@ defmodule APITest do
 
   test "POST /insert where value of node is not an integer" do
     data = %{"left" => nil, "value" => "not an integer", "right" => nil}
-    request_map = %{"value" => 7, "data" => data}
+    request_map = %{"value" => 7, "tree" => data}
     body = Poison.encode!(request_map)
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
@@ -116,7 +116,7 @@ defmodule APITest do
 
   test "POST /insert where value to insert is not an integer" do
     data = %{"left" => nil, "value" => 2, "right" => nil}
-    request_map = %{"value" => "seven", "data" => data}
+    request_map = %{"value" => "seven", "tree" => data}
     body = Poison.encode!(request_map)
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "application/json"}])
     expected_resp_body = Utils.make_err_resp("JSON parsed successfully but was in the wrong format")
@@ -147,7 +147,7 @@ defmodule APITest do
   test "POST /insert with wrong content-type" do
     node = %BSTNode{value: 3}
     value = 5
-    request_map = %{"value" => value, "data" => node}
+    request_map = %{"value" => value, "tree" => node}
     body = Poison.encode!(request_map)
 
     {:ok, response} = HTTPoison.post("localhost:8080/insert", body, [{"content-type", "text/plain"}])
